@@ -5,11 +5,11 @@ function checkLoginInputs(e) {
     const contrasena = document.querySelector('#contrasena');
     const mensajeError = document.querySelector('#error-msg');
 
-    // Limpiar el mensaje de error previo
+    // Limpiar el mensaje de error
     mensajeError.textContent = '';
-    mensajeError.style.display = 'none'; // Ocultar mensaje inicialmente
+    mensajeError.style.display = 'none';
 
-    // Variable que almacena el estado de la validación
+    // Almacena el estado de la validación
     let estado = true;
 
     // Valida la existencia del correo
@@ -64,7 +64,6 @@ function addTelefonoField() {
     inputGroup.appendChild(input);
     inputGroup.appendChild(deleteBtn);
 
-    // Añadir el contenedor al DOM
     container.appendChild(inputGroup);
 }
 
@@ -99,9 +98,27 @@ function addDireccionField() {
     inputGroup.appendChild(input);
     inputGroup.appendChild(deleteBtn);
 
-    // Añadir el contenedor al DOM
     container.appendChild(inputGroup);
 }
+
+function valoresActualesEspecie(id, nombreComercial, nombreCientifico) {
+    // Carga en los campos ocultos del form, los valores actuales de la espeice
+    document.getElementById('currentNombreComercial').value = nombreComercial;
+    document.getElementById('currentNombreCientifico').value = nombreCientifico;
+
+    // Carga en los campos visibles del form, los valores actuales de la espeice
+    // estos campos son los que se actualizan.
+    document.getElementById('updateNombreComercial').value = nombreComercial;
+    document.getElementById('updateNombreCientifico').value = nombreCientifico;
+}
+
+function Eliminar(id, nombreComercial) {
+    if (confirm(`¿Estás seguro de que deseas eliminar la especie "${nombreComercial}"?`)) {
+        document.getElementById(`deleteForm${id}`).submit();
+    }
+}
+
+
 
 // Función que se asocia a los eventos
 function bindEvents() {

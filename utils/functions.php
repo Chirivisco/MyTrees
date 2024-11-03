@@ -148,13 +148,13 @@ function signup($user): int
             // Ejecuta la consulta
             if ($stmt->execute()) {
                 // Retorna el ID del último usuario insertado
-                return $connection->insert_id; 
+                return $connection->insert_id;
             } else {
                 throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
             }
         }
     } catch (Exception $e) {
-         // Retorna 0 como ID del usuario indicando error
+        // Retorna 0 como ID del usuario indicando error
         return 0;
     } finally {
         if (isset($stmt)) {
@@ -227,8 +227,7 @@ function obtener_estadisticas()
         $stmt1 = $connection->prepare($queryUsuarios);
         if (!$stmt1) {
             throw new Exception("Error en la preparación de la consulta de usuarios: " . $connection->error);
-        }
-        else {
+        } else {
             $stmt1->execute();
             $result1 = $stmt1->get_result();
             $row = $result1->fetch_assoc();
@@ -241,8 +240,7 @@ function obtener_estadisticas()
         $stmt2 = $connection->prepare($queryAV);
         if (!$stmt2) {
             throw new Exception("Error en la preparación de la consulta de árboles vendidos: " . $connection->error);
-        }
-        else {
+        } else {
             $stmt2->execute();
             $result2 = $stmt2->get_result();
             $row = $result2->fetch_assoc();
@@ -255,8 +253,7 @@ function obtener_estadisticas()
         $stmt3 = $connection->prepare($queryAD);
         if (!$stmt3) {
             throw new Exception("Error en la preparación de la consulta de árboles disponibles: " . $connection->error);
-        } 
-        else {
+        } else {
             $stmt3->execute();
             $result3 = $stmt3->get_result();
             $row = $result3->fetch_assoc();
@@ -266,7 +263,6 @@ function obtener_estadisticas()
 
         // Devuelve el array de estadísticas
         return $estadisticas;
-
     } catch (Exception $e) {
         header("Location: ../pantallas/dashboard.php?error=database_error");
         exit();
@@ -285,7 +281,7 @@ function obtener_estadisticas()
 }
 
 // Función para insertar una nueva especie de árbol
-function insertarEspecie($especie): bool
+function insertarEspecie($nombreComercial, $nombreCientifico): bool
 {
     $connection = getConnection();
     $query = "INSERT INTO ESPECIES_ARBOLES (NOMBRE_COMERCIAL, NOMBRE_CIENTIFICO) VALUES (?, ?)";
@@ -295,7 +291,7 @@ function insertarEspecie($especie): bool
         if (!$stmt) {
             throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
         } else {
-            $stmt->bind_param("ss", $especie['nombre_comercial'], $especie['nombre_cientifico']);
+            $stmt->bind_param("ss", $nombreComercial, $nombreCientifico);
 
             // Retorna true si la ejecución fue exitosa
             if ($stmt->execute()) {
@@ -306,7 +302,7 @@ function insertarEspecie($especie): bool
         }
     } catch (Exception $e) {
         // Retorna false en caso de error
-        return false; 
+        return false;
         exit();
     } finally {
         if (isset($stmt)) {
@@ -316,8 +312,46 @@ function insertarEspecie($especie): bool
     }
 }
 
+// Función para obtener el ID de una especie a partir del nombre comercial y científico
+function obtenerIdEspecie($nombreComercial, $nombreCientifico): int
+{
+    $connection = getConnection();
+    $query = "SELECT ID_ESPECIE FROM ESPECIES_ARBOLES WHERE NOMBRE_COMERCIAL = ? AND NOMBRE_CIENTIFICO = ?";
+
+    try {
+        $stmt = $connection->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            $stmt->bind_param("ss", $nombreComercial, $nombreCientifico);
+            if ($stmt->execute()) {
+                
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    return (int) $row['ID_ESPECIE'];
+                } else {
+                    return 0;
+                }
+                
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+            
+        }
+    } catch (Exception $e) {
+        return 0;
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
 // Función para actualizar una especie existente
-function actualizarEspecie($idEspecie, $especie): bool
+function actualizarEspecie($idEspecie, $nombreComercial, $nombreCientifico): bool
 {
     $connection = getConnection();
     $query = "UPDATE ESPECIES_ARBOLES SET NOMBRE_COMERCIAL = ?, NOMBRE_CIENTIFICO = ? WHERE ID_ESPECIE = ?";
@@ -326,11 +360,16 @@ function actualizarEspecie($idEspecie, $especie): bool
         $stmt = $connection->prepare($query);
         if (!$stmt) {
             throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
-        }
-        $stmt->bind_param("ssi", $especie['nombre_comercial'], $especie['nombre_cientifico'], $idEspecie);
+        } else {
+            $stmt->bind_param("ssi", $nombreComercial, $nombreCientifico, $idEspecie);
 
-        // Retorna true si la ejecución fue exitosa
-        return $stmt->execute();
+            // Retorna true si la ejecución fue exitosa
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
     } catch (Exception $e) {
         // Retorna false en caso de error
         return false;
@@ -352,14 +391,19 @@ function borrarEspecie($idEspecie): bool
         $stmt = $connection->prepare($query);
         if (!$stmt) {
             throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
-        }
-        $stmt->bind_param("i", $idEspecie);
+        } else {
+            $stmt->bind_param("i", $idEspecie);
 
-        // Retorna true si la ejecución fue exitosa
-        return $stmt->execute(); 
+            // Retorna true si la ejecución fue exitosa
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
     } catch (Exception $e) {
         // Retorna false en caso de error
-        return false; 
+        return false;
     } finally {
         if (isset($stmt)) {
             $stmt->close();
@@ -380,20 +424,22 @@ function cargarEspecies(): array
         $stmt = $connection->prepare($query);
         if (!$stmt) {
             throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                // Guarda en un array las especies de la bd
+                while ($row = $result->fetch_assoc()) {
+                    $especies[] = $row;
+                }
+                // Retorna el array con las epsecies
+                return $especies;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
         }
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        // Recorre los resultados y los almacena en un array asociativo
-        while ($row = $result->fetch_assoc()) {
-            $especies[] = $row;
-        }
-
-        return $especies; // Retorna el array de especies
-
     } catch (Exception $e) {
-        return []; // Retorna un array vacío en caso de error
+        return [];
     } finally {
         if (isset($stmt)) {
             $stmt->close();
@@ -401,8 +447,3 @@ function cargarEspecies(): array
         mysqli_close($connection);
     }
 }
-
-
-
-
-
