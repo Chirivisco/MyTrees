@@ -1,0 +1,7 @@
+.footer {
+    background-color: #f8f8f8;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    margin-top: auto; /* Empuja el footer al final */
+    padding: 1rem 0; /* Agrega espacio interior */
+}

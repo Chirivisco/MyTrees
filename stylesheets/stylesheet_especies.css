@@ -1,0 +1,20 @@
+body {
+    background-color: #f3fdf3;
+}
+
+.table {
+    background-color: #e8f5e9;
+}
+
+.table th, .table td {
+    border-color: #81c784;
+}
+
+.btn-success {
+    background-color: #388e3c;
+    border-color: #388e3c;
+}
+
+.btn-success:hover {
+    background-color: #2e7d32;
+}
