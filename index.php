@@ -1,4 +1,8 @@
 <?php
+session_start();
+session_destroy();
+
+
 // Manejo de errores (lado servidor)
 $error = "";
 if (isset($_GET['error'])) {

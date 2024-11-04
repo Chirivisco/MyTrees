@@ -1,6 +1,15 @@
 <?php
 include '../utils/functions.php';
 
+session_start();
+
+// Validar si la sesión está activa y que sea un admin.
+if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo'] !== 'Admin') {
+    // Redirigir al login si no hay sesión activa.
+    header("Location: ../index.php");
+    exit();
+}
+
 // Llama a la función para obtener las estadísticas
 $estadisticas = obtener_estadisticas();
 ?>

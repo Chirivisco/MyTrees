@@ -1,6 +1,15 @@
 <?php
-// Incluir el archivo de funciones para cargar los métodos necesarios
 require '../utils/functions.php';
+
+session_start();
+
+// Validar si la sesión está activa y que sea un admin.
+if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo'] !== 'Admin') {
+    // Redirigir al login si no hay sesión activa.
+    header("Location: ../index.php");
+    exit();
+}
+
 
 // Cargar las especies desde la base de datos
 $especies = cargarEspecies(); // Ejecuta la función que devuelve un array de especies

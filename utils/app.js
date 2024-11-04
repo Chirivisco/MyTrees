@@ -118,7 +118,34 @@ function Eliminar(id, nombreComercial) {
     }
 }
 
+function cargarArbol(id_arbol, especie, ubicacion, precio, ruta_foto_arbol, estado) {
+    // Asigna los valores a los campos del formulario de actualización
+    document.getElementById('updateArbolId').value = id_arbol;
+    document.getElementById('updateUbicacion').value = ubicacion;
+    document.getElementById('updatePrecio').value = precio;
+    const estadoSelect = document.getElementById('updateEstado');
+    for (let i = 0; i < estadoSelect.options.length; i++) {
+        if (estadoSelect.options[i].text === estado) {
+            estadoSelect.selectedIndex = i;
+            break;
+        }
+    }
 
+    const especieSelect = document.getElementById('updateEspecie');
+    for (let i = 0; i < especieSelect.options.length; i++) {
+        if (especieSelect.options[i].text === especie) {
+            especieSelect.selectedIndex = i;
+            break;
+        }
+    }
+
+    // Mostrar la imagen del árbol en el formulario de actualización
+    const imgElement = document.getElementById('imagenPreview');
+    if (imgElement) {
+        imgElement.src = ruta_foto_arbol;
+        imgElement.alt = `Foto del árbol con ID ${id_arbol}`;
+    }
+}
 
 // Función que se asocia a los eventos
 function bindEvents() {

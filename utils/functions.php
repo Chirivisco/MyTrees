@@ -120,6 +120,48 @@ function validar_correo($email)
     }
 }
 
+// Función que carga los usuarios del sistema.
+function obtenerUsuarios()
+{
+    // Obtiene la conexión a la base de datos
+    $connection = getConnection();
+    $usuarios = [];
+    $query = "SELECT U.ID_USUARIOS, TU.TIPO, U.USUARIO, CONCAT(NOMBRE, ' ', APELLIDOS) as NOMBRE_COMPLETO FROM USUARIOS AS U INNER JOIN TIPOS_USUARIOS AS TU ON U.TIPO_USUARIO = TU.ID_TIPO;";
+
+    try {
+        // Prepara la consulta SQL
+        $stmt = $connection->prepare($query);
+
+        if (!$stmt) {
+            throw new Exception("Error en la consulta SQL: " . $connection->error);
+        } else {
+
+            // Ejecuta la consulta
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                // Guarda en un array los usuarios de la bd
+                while ($row = $result->fetch_assoc()) {
+                    $usuarios[] = $row;
+                }
+                // Retorna el array con las usuarios
+                return $usuarios;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        // Redirige en caso de error y detiene la ejecución
+        return $usuarios;
+        exit();
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
 // Función para registrar un nuevo usuario y retornar el ID generado
 function signup($user): int
 {
@@ -325,7 +367,7 @@ function obtenerIdEspecie($nombreComercial, $nombreCientifico): int
         } else {
             $stmt->bind_param("ss", $nombreComercial, $nombreCientifico);
             if ($stmt->execute()) {
-                
+
                 $result = $stmt->get_result();
 
                 if ($result->num_rows > 0) {
@@ -334,11 +376,9 @@ function obtenerIdEspecie($nombreComercial, $nombreCientifico): int
                 } else {
                     return 0;
                 }
-                
             } else {
                 throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
             }
-            
         }
     } catch (Exception $e) {
         return 0;
@@ -447,3 +487,218 @@ function cargarEspecies(): array
         mysqli_close($connection);
     }
 }
+
+// Función para obtener todos los arboles de la bd
+function obtenerArboles()
+{
+    // Obtiene la conexión a la base de datos
+    $connection = getConnection();
+    $arboles = [];
+    $query = "SELECT 
+                A.ID_ARBOL, 
+                E.NOMBRE_COMERCIAL, 
+                E.NOMBRE_CIENTIFICO, 
+                CONCAT(E.NOMBRE_COMERCIAL, ' - ', E.NOMBRE_CIENTIFICO) AS ESPECIE, 
+                A.UBICACION, 
+                A.PRECIO, 
+                EST.ESTADO, 
+                A.FOTO_ARBOL AS RUTA_FOTO_ARBOL  
+            FROM ARBOLES AS A 
+            INNER JOIN ESPECIES_ARBOLES AS E ON A.ESPECIE = E.ID_ESPECIE
+            INNER JOIN ESTADOS AS EST ON A.ESTADO = EST.ID_ESTADO
+            ORDER BY A.ID_ARBOL;";
+
+    try {
+        // Prepara la consulta SQL
+        $stmt = $connection->prepare($query);
+
+        if (!$stmt) {
+            throw new Exception("Error en la consulta SQL: " . $connection->error);
+        } else {
+
+            // Ejecuta la consulta
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                // Guarda en un array los árboles
+                while ($row = $result->fetch_assoc()) {
+                    $arboles[] = $row;
+                }
+                // Retorna el array con los árboles
+                return $arboles;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        // Redirige en caso de error y detiene la ejecución
+        return $arboles;
+        exit();
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
+// Función para insertar un nuevo árbol utilizando un array de datos
+function insertarArbol(array $arbol): bool
+{
+    $connection = getConnection();
+    $query = "INSERT INTO ARBOLES (ESPECIE, UBICACION, PRECIO, FOTO_ARBOL, ESTADO) VALUES (?, ?, ?, ?, ?)";
+
+    try {
+        $stmt = $connection->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            $stmt->bind_param(
+                "isdsi",
+                $arbol['especie'],
+                $arbol['ubicacion'],
+                $arbol['precio'],
+                $arbol['fotoArbol'],
+                $arbol['estado']
+            );
+
+            // Retorna true si la ejecución fue exitosa
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        // Retorna false en caso de error
+        return false;
+        exit();
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
+// Función para actualizar un árbol utilizando un array de datos
+function actualizarArbol(array $arbol): bool
+{
+    $connection = getConnection();
+    $query = "UPDATE ARBOLES SET ESPECIE = ?, UBICACION = ?, PRECIO = ?, FOTO_ARBOL = ?, ESTADO = ? WHERE ID_ARBOL = ?";
+
+    try {
+        $stmt = $connection->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            $stmt->bind_param(
+                "isdsii",
+                $arbol['especie'],
+                $arbol['ubicacion'],
+                $arbol['precio'],
+                $arbol['fotoArbol'],
+                $arbol['estado'],
+                $arbol['idArbol']
+            );
+
+            // Retorna true si la ejecución fue exitosa
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        // Retorna false en caso de error
+        return false;
+        exit();
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
+// Función para cargar la información de un árbol específico
+function cargarInfoArbol(int $idArbol): array
+{
+    $connection = getConnection();
+    $arbol = [];
+
+    $query = "
+        SELECT 
+            A.ID_ARBOL,
+            CONCAT(E.NOMBRE_COMERCIAL, ' - ', E.NOMBRE_CIENTIFICO) AS ESPECIE,
+            A.UBICACION,
+            A.PRECIO,
+            A.FOTO_ARBOL AS RUTA_FOTO_ARBOL,
+            ES.ESTADO
+        FROM ARBOLES a
+        INNER JOIN ESPECIES_ARBOLES E ON A.ESPECIE = E.ID_ESPECIE
+        INNER JOIN ESTADOS ES ON A.ID_ARBOL = ES.ID_ESTADO
+        WHERE A.ID_ARBOL = ?";
+
+    try {
+        $stmt = $connection->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            $stmt->bind_param("i", $idArbol);
+
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $arbol = $result->fetch_assoc();
+                }
+                return $arbol;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        return [];
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
+// Función para cargar todos los estados de usuarios
+function cargarEstados(): array
+{
+    $connection = getConnection();
+    $estados = [];
+
+    $query = "SELECT * FROM ESTADOS;";
+
+    try {
+        $stmt = $connection->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                while ($row = $result->fetch_assoc()) {
+                    $estados[] = $row;
+                }
+                return $estados;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        return [];
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
