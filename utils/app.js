@@ -119,7 +119,7 @@ function Eliminar(id, nombreComercial) {
 }
 
 function cargarArbol(id_arbol, especie, ubicacion, precio, ruta_foto_arbol, estado) {
-    // Asigna los valores a los campos del formulario de actualización
+    // Ingresa los datos actuales en los campos
     document.getElementById('updateArbolId').value = id_arbol;
     document.getElementById('updateUbicacion').value = ubicacion;
     document.getElementById('updatePrecio').value = precio;
@@ -139,7 +139,7 @@ function cargarArbol(id_arbol, especie, ubicacion, precio, ruta_foto_arbol, esta
         }
     }
 
-    // Mostrar la imagen del árbol en el formulario de actualización
+    // Mostrar la imagen del árbol
     const imgElement = document.getElementById('imagenPreview');
     if (imgElement) {
         imgElement.src = ruta_foto_arbol;
@@ -147,9 +147,25 @@ function cargarArbol(id_arbol, especie, ubicacion, precio, ruta_foto_arbol, esta
     }
 }
 
+function mostrarOffcanvas(offcanvasElement) {
+    offcanvasElement.style.display = 'block';
+    offcanvasElement.classList.add('show');
+}
+
+function ocultarOffcanvas(offcanvasElement) {
+    offcanvasElement.classList.remove('show');
+    setTimeout(() => {
+        offcanvasElement.style.display = 'none';
+    }, 300); // Espera para que termine la animación
+}
+
 // Función que se asocia a los eventos
 function bindEvents() {
     const signupForm = document.getElementById('signupForm');
+
+    const offcanvasForm = document.getElementById('offcanvasCarrito');
+    const carritoIcon = document.getElementById('carrito-compras'); // este elemento no lo está encontrando
+    const closeButton = document.getElementById('closeOffcanvas');
 
     if (signupForm) {
         const addTelefonoBtn = document.getElementById('add-telefono-btn');
@@ -162,6 +178,30 @@ function bindEvents() {
         if (addDireccionBtn) {
             addDireccionBtn.addEventListener('click', addDireccionField);
         }
+    }
+
+    if (offcanvasForm) {
+        // Evento para mostrar el offcanvas al hacer clic en el ícono del carrito
+        if (carritoIcon) {
+            carritoIcon.addEventListener('click', function (e) {
+                e.preventDefault();
+                mostrarOffcanvas(offcanvasForm);
+            });
+        }
+
+        // Evento para cerrar el offcanvas al hacer clic en el botón de cierre
+        if (closeButton) {
+            closeButton.addEventListener('click', function () {
+                ocultarOffcanvas(offcanvasForm);
+            });
+        }
+
+        // Cerrar el offcanvas si se hace clic fuera de él
+        document.addEventListener('click', function (event) {
+            if (!offcanvasForm.contains(event.target) && event.target !== carritoIcon) {
+                ocultarOffcanvas(offcanvasForm);
+            }
+        });
     }
 }
 

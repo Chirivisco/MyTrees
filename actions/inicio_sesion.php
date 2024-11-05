@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
             if ($tipo_usuario === 'Admin') {
                 header("Location: ../pantallas/menu_admin.php");
             } else {
-                header("Location: ../pantallas/menu_usuario.php");
+                header("Location: ../pantallas/menu_amigo.php");
             }
             exit();
         } else {

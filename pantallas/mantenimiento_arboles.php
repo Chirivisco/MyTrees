@@ -1,5 +1,4 @@
 <?php
-// Incluir el archivo de funciones para cargar los métodos necesarios
 require '../utils/functions.php';
 
 session_start();
@@ -11,7 +10,7 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo']
     exit();
 }
 
-$arboles = obtenerArboles();
+$arboles = obtenerArboles( $_SESSION['tipo']);
 $especies = cargarEspecies();
 $estados = cargarEstados();
 

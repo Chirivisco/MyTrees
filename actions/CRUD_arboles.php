@@ -40,11 +40,6 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo']
                             $uploadOk = false;
                         }
 
-                        // valida que el archivo no pese más de 500kb
-                        if ($_FILES['imagen']['size'] > 500000) {
-                            $uploadOk = false;
-                        }
-
                         // agrega la imagen a la ruta indicada
                         if ($uploadOk == true) {
                             if (!move_uploaded_file($_FILES['imagen']['tmp_name'], $target_file)) {
@@ -104,11 +99,6 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo']
                         if ($check !== false) {
                             $uploadOk = true;
                         } else {
-                            $uploadOk = false;
-                        }
-
-                        // valida que el archivo no pese más de 500 KB
-                        if ($_FILES['imagen']['size'] > 500000) {
                             $uploadOk = false;
                         }
 

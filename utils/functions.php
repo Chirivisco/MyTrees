@@ -489,24 +489,19 @@ function cargarEspecies(): array
 }
 
 // Función para obtener todos los arboles de la bd
-function obtenerArboles()
+function obtenerArboles($tipo_usuario)
 {
     // Obtiene la conexión a la base de datos
     $connection = getConnection();
     $arboles = [];
-    $query = "SELECT 
-                A.ID_ARBOL, 
-                E.NOMBRE_COMERCIAL, 
-                E.NOMBRE_CIENTIFICO, 
-                CONCAT(E.NOMBRE_COMERCIAL, ' - ', E.NOMBRE_CIENTIFICO) AS ESPECIE, 
-                A.UBICACION, 
-                A.PRECIO, 
-                EST.ESTADO, 
-                A.FOTO_ARBOL AS RUTA_FOTO_ARBOL  
-            FROM ARBOLES AS A 
-            INNER JOIN ESPECIES_ARBOLES AS E ON A.ESPECIE = E.ID_ESPECIE
-            INNER JOIN ESTADOS AS EST ON A.ESTADO = EST.ID_ESTADO
-            ORDER BY A.ID_ARBOL;";
+    $query = "";
+
+    if ($tipo_usuario == "Admin") {
+        $query = "SELECT * FROM vista_arboles_admin;";
+    } else {
+        $query = "SELECT * FROM vista_arboles_activos;";
+    }
+
 
     try {
         // Prepara la consulta SQL
@@ -701,4 +696,3 @@ function cargarEstados(): array
         mysqli_close($connection);
     }
 }
-
