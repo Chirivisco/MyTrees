@@ -9,6 +9,7 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo']
 }
 
 $arboles = obtenerArboles($_SESSION['tipo']);
+$arboles_carrito = isset($_SESSION['arboles_carrito']) ? $_SESSION['arboles_carrito'] : [];
 ?>
 
 <!DOCTYPE html>
@@ -21,7 +22,7 @@ $arboles = obtenerArboles($_SESSION['tipo']);
     <link rel="stylesheet" href="/stylesheets/stylesheet_menu_amigo.css">
     <link rel="stylesheet" href="/stylesheets/stylesheet_offcanvas.css"> <!-- Agregado: stylesheet para el offcanvas -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" href="/imagenes/app_icon.png" type="image/x-icon">     
+    <link rel="icon" href="/imagenes/app_icon.png" type="image/x-icon">
 </head>
 
 <body>
@@ -43,8 +44,8 @@ $arboles = obtenerArboles($_SESSION['tipo']);
             <button type="button" class="btn-close" id="closeOffcanvas" aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body">
-            <p>Tu carrito está vacío.</p>
             <!-- Aquí se cargará dinámicamente la lista de productos -->
+
         </div>
     </div>
 
@@ -53,22 +54,33 @@ $arboles = obtenerArboles($_SESSION['tipo']);
             <h1 class="text-center text-success mb-4">Tienda de Árboles</h1>
             <div class="row">
 
-                <!-- Carga en las cards los distintos árboles disponibles -->
+                <!-- Carga en las cards los árboles disponibles -->
                 <?php foreach ($arboles as $arbol): ?>
                     <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm h-100">
-                            <img src="<?php echo htmlspecialchars($arbol['RUTA_FOTO_ARBOL']); ?>" class="card-img-top" alt="Imagen de árbol">
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo htmlspecialchars($arbol['ESPECIE']); ?></h5>
-                                <p class="card-text">
-                                    <strong>Ubicación:</strong> <?php echo htmlspecialchars($arbol['UBICACION']); ?><br>
-                                    <strong>Precio:</strong> $<?php echo number_format($arbol['PRECIO'], 2); ?>
-                                </p>
-                                <a href="#" class="btn btn-success">Comprar</a>
+
+                        <!-- Form para agregar al carrito de compras el árbol -->
+                        <form action="../actions/carrito_compras.php" method="POST">
+                            <div class="card shadow-sm h-100">
+                                <!-- Imagen del árbol -->
+                                <img src="<?php echo htmlspecialchars($arbol['RUTA_FOTO_ARBOL']); ?>" class="card-img-top" alt="Imagen de árbol">
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title"><?php echo htmlspecialchars($arbol['ESPECIE']); ?></h5>
+                                    
+                                    <!-- Descripción del árbol -->
+                                    <p class="card-text">
+                                        <strong>Ubicación:</strong> <?php echo htmlspecialchars($arbol['UBICACION']); ?><br>
+                                        <strong>Precio:</strong> $<?php echo number_format($arbol['PRECIO'], 2); ?>
+                                    </p>
+                                    <input type="hidden" name="id_arbol" value="<?php echo htmlspecialchars($arbol['ID_ARBOL']); ?>">
+                                    <button type="submit" class="btn btn-success" data-ajax="true">Comprar</button>
+                                </div>
                             </div>
-                        </div>
+                        </form>
+
                     </div>
                 <?php endforeach; ?>
+
 
             </div>
         </div>
@@ -81,7 +93,7 @@ $arboles = obtenerArboles($_SESSION['tipo']);
             .then(response => response.text())
             .then(data => document.getElementById('footer-container').innerHTML = data);
     </script>
-    
+
     <script src="/utils/app.js"></script>
 </body>
 

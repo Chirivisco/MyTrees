@@ -14,7 +14,7 @@ function login($user)
     $connection = getConnection();
 
     // Consulta SQL para autenticación de usuario y obtener el tipo
-    $query = "SELECT U.CONTRASENA, TU.TIPO, U.ID_USUARIO AS TIPO_USUARIO FROM USUARIOS AS U INNER JOIN TIPOS_USUARIOS AS TU ON U.TIPO_USUARIO = TU.ID_TIPO WHERE U.USUARIO = ?;";
+    $query = "SELECT U.CONTRASENA, TU.TIPO AS TIPO_USUARIO, U.ID_USUARIO FROM USUARIOS AS U INNER JOIN TIPOS_USUARIOS AS TU ON U.TIPO_USUARIO = TU.ID_TIPO WHERE U.USUARIO = ?;";
 
     $usuario = $user['email'];
     $contrasena = $user['contrasena'];
@@ -783,3 +783,39 @@ function agregarDetalleCarrito($idCarrito, $idArbol): bool
         mysqli_close($connection);
     }
 }
+
+// Función para cargar todos los árboles en el carrito de un usuario
+function cargarArbolesCarrito($idUsuario): array
+{
+    $connection = getConnection();
+    $arboles = [];
+
+    $query = "SELECT * FROM VISTA_ARBOLES_CARRITO WHERE ID_USUARIO = ?;";
+
+    try {
+        $stmt = $connection->prepare($query);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta SQL: " . $connection->error);
+        } else {
+            $stmt->bind_param("i", $idUsuario);
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                while ($row = $result->fetch_assoc()) {
+                    $arboles[] = $row;
+                }
+                return $arboles;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        return [];
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
