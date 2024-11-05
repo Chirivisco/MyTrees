@@ -181,24 +181,25 @@ function bindEvents() {
     }
 
     if (offcanvasForm) {
-        // Evento para mostrar el offcanvas al hacer clic en el ícono del carrito
+        // muestra el offcanvas al clickear en el carrito de compras
         if (carritoIcon) {
             carritoIcon.addEventListener('click', function (e) {
                 e.preventDefault();
+                e.stopPropagation(); // detiene el click
                 mostrarOffcanvas(offcanvasForm);
             });
         }
 
-        // Evento para cerrar el offcanvas al hacer clic en el botón de cierre
+        // Cierra el offcanvas en el botón de cerrar
         if (closeButton) {
             closeButton.addEventListener('click', function () {
                 ocultarOffcanvas(offcanvasForm);
             });
         }
 
-        // Cerrar el offcanvas si se hace clic fuera de él
         document.addEventListener('click', function (event) {
-            if (!offcanvasForm.contains(event.target) && event.target !== carritoIcon) {
+            // valida si el click fue fuera del offcanvas
+            if (!offcanvasForm.contains(event.target) && event.target !== carritoIcon && !carritoIcon.contains(event.target)) {
                 ocultarOffcanvas(offcanvasForm);
             }
         });

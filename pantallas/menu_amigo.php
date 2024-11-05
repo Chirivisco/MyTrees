@@ -21,23 +21,22 @@ $arboles = obtenerArboles($_SESSION['tipo']);
     <link rel="stylesheet" href="/stylesheets/stylesheet_menu_amigo.css">
     <link rel="stylesheet" href="/stylesheets/stylesheet_offcanvas.css"> <!-- Agregado: stylesheet para el offcanvas -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="icon" href="/imagenes/app_icon.png" type="image/x-icon">     
 </head>
 
 <body>
     <!-- Añade el header a la vista -->
     <div id="header-container"></div>
     <script>
-        // Carga el header y luego ejecuta bindEvents()
         fetch('/pantallas/shared/header_amigo.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('header-container').innerHTML = data;
-                bindEvents(); // Llama a la función después de cargar el header
+                bindEvents();
             });
     </script>
 
-    <!-- Agregado: Offcanvas para el carrito de compras -->
+    <!-- Offcanvas para el carrito de compras -->
     <div id="offcanvasCarrito" class="offcanvas">
         <div class="offcanvas-header">
             <h5>Carrito de Compras</h5>
@@ -48,12 +47,13 @@ $arboles = obtenerArboles($_SESSION['tipo']);
             <!-- Aquí se cargará dinámicamente la lista de productos -->
         </div>
     </div>
-    <!-- Fin del offcanvas -->
 
     <main>
         <div class="container mt-5">
             <h1 class="text-center text-success mb-4">Tienda de Árboles</h1>
             <div class="row">
+
+                <!-- Carga en las cards los distintos árboles disponibles -->
                 <?php foreach ($arboles as $arbol): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm h-100">
@@ -69,6 +69,7 @@ $arboles = obtenerArboles($_SESSION['tipo']);
                         </div>
                     </div>
                 <?php endforeach; ?>
+
             </div>
         </div>
     </main>
@@ -80,8 +81,7 @@ $arboles = obtenerArboles($_SESSION['tipo']);
             .then(response => response.text())
             .then(data => document.getElementById('footer-container').innerHTML = data);
     </script>
-
-    <!-- Script para manejar el offcanvas -->
+    
     <script src="/utils/app.js"></script>
 </body>
 

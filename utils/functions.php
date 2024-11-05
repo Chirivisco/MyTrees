@@ -14,7 +14,7 @@ function login($user)
     $connection = getConnection();
 
     // Consulta SQL para autenticación de usuario y obtener el tipo
-    $query = "SELECT U.CONTRASENA, TU.TIPO AS TIPO_USUARIO FROM USUARIOS AS U INNER JOIN TIPOS_USUARIOS AS TU ON U.TIPO_USUARIO = TU.ID_TIPO WHERE U.USUARIO = ?;";
+    $query = "SELECT U.CONTRASENA, TU.TIPO, U.ID_USUARIO AS TIPO_USUARIO FROM USUARIOS AS U INNER JOIN TIPOS_USUARIOS AS TU ON U.TIPO_USUARIO = TU.ID_TIPO WHERE U.USUARIO = ?;";
 
     $usuario = $user['email'];
     $contrasena = $user['contrasena'];
@@ -41,6 +41,7 @@ function login($user)
                     $row = $result->fetch_assoc();
                     $hashed_password = $row['CONTRASENA'];
                     $tipo_usuario = $row['TIPO_USUARIO'];
+                    $id_usuario = $row['ID_USUARIO'];
 
                     // Valida la contraseña hasheada
                     if (password_verify($contrasena, $hashed_password)) {
@@ -50,14 +51,14 @@ function login($user)
                         $_SESSION["tipo"] = $tipo_usuario;
 
                         // Retorna true y su rol de usuario
-                        return ['success' => true, 'tipo' => $tipo_usuario];
+                        return ['success' => true, 'tipo' => $tipo_usuario, 'id_usuario' => $id_usuario];
                     } else {
                         // Retorna false y null si la autenticación falló
-                        return ['success' => false, 'tipo' => null];
+                        return ['success' => false, 'tipo' => null, 'id_usuario' => 0];
                     }
                 } else {
                     // Retorna false y null si no hay registros o resultados del query
-                    return ['success' => false, 'tipo' => null];
+                    return ['success' => false, 'tipo' => null, 'id_usuario' => 0];
                 }
             } else {
                 throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
@@ -499,7 +500,7 @@ function obtenerArboles($tipo_usuario)
     if ($tipo_usuario == "Admin") {
         $query = "SELECT * FROM vista_arboles_admin;";
     } else {
-        $query = "SELECT * FROM vista_arboles_activos;";
+        $query = "SELECT * FROM vista_arboles_disponibles;";
     }
 
 
@@ -689,6 +690,92 @@ function cargarEstados(): array
         }
     } catch (Exception $e) {
         return [];
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
+// Función para crear un nuevo carrito de compras o verificar si ya existe 
+function crearCarritoCompras($idUsuario): int
+{
+    $connection = getConnection();
+
+    try {
+        // valida si el usuario ya tiene un carrito
+        $queryVerificar = "SELECT ID_CARRITO FROM CARRITO_COMPRAS WHERE USUARIO = ?";
+        $stmtVerificar = $connection->prepare($queryVerificar);
+
+        if (!$stmtVerificar) {
+            throw new Exception("Error en el statement de la consulta de verificación de carrito: " . $connection->error);
+        }
+
+        $stmtVerificar->bind_param("i", $idUsuario);
+        $stmtVerificar->execute();
+        $stmtVerificar->store_result();
+
+        if ($stmtVerificar->num_rows > 0) {
+            // Obtener el ID del carrito existente
+            $stmtVerificar->bind_result($idCarritoExistente);
+            $stmtVerificar->fetch();
+            return $idCarritoExistente;
+        }
+
+        // Cerrar la consulta de verificación
+        $stmtVerificar->close();
+
+        // inserta un nuevo carrito para el usuario
+        $queryCarrito = "INSERT INTO CARRITO_COMPRAS (USUARIO) VALUES (?)";
+        $stmt = $connection->prepare($queryCarrito);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta de carrito: " . $connection->error);
+        }
+
+        $stmt->bind_param("i", $idUsuario);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al insertar el carrito: " . $stmt->error);
+        }
+
+        // Retorna el ID del carrito creado
+        return $connection->insert_id;
+    } catch (Exception $e) {
+        // Retorna 0 en caso de error
+        return 0;
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        if (isset($stmtVerificar)) {
+            $stmtVerificar->close();
+        }
+        mysqli_close($connection);
+    }
+}
+
+// Función para agregar  de compra al carrito
+function agregarDetalleCarrito($idCarrito, $idArbol): bool
+{
+    $connection = getConnection();
+
+    try {
+        $queryDetalle = "INSERT INTO DETALLE_CARRITO_COMPRAS (CARRITO, ARBOL) VALUES (?, ?)";
+        $stmt = $connection->prepare($queryDetalle);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta de detalle de carrito: " . $connection->error);
+        } else {
+            $stmt->bind_param("ii", $idCarrito, $idArbol);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Error al insertar detalle de carrito: " . $stmt->error);
+            } else {
+                return true;
+            }
+        }
+    } catch (Exception $e) {
+        return false;
     } finally {
         if (isset($stmt)) {
             $stmt->close();

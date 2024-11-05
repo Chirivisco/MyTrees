@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
             // guarda la info del usuario en la sesión.
             $_SESSION['email'] = $user['email'];
             $_SESSION['tipo'] = $tipo_usuario;
+            $_SESSION['id_usuario'] = $resultado['id_usuario'];
 
             // Redirige al menú correspondiente.
             if ($tipo_usuario === 'Admin') {
