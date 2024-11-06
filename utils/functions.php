@@ -127,7 +127,7 @@ function obtenerUsuarios()
     // Obtiene la conexión a la base de datos
     $connection = getConnection();
     $usuarios = [];
-    $query = "SELECT U.ID_USUARIOS, TU.TIPO, U.USUARIO, CONCAT(NOMBRE, ' ', APELLIDOS) as NOMBRE_COMPLETO FROM USUARIOS AS U INNER JOIN TIPOS_USUARIOS AS TU ON U.TIPO_USUARIO = TU.ID_TIPO;";
+    $query = "SELECT * FROM vista_usuarios_1";
 
     try {
         // Prepara la consulta SQL

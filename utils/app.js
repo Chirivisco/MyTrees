@@ -159,25 +159,6 @@ function ocultarOffcanvas(offcanvasElement) {
     }, 300); // Espera para que termine la animación
 }
 
-// Función para mostrar las cards en el offcanvas
-function cargarCarritoEnOffcanvas(arboles) {
-    arboles.forEach(arbol => {
-        // Encuentra la card correspondiente por el atributo `data-id-arbol`
-        const card = document.querySelector(`.card[data-id-arbol="${arbol.ID_ARBOL}"]`);
-
-        if (card) {
-            // Llena la información de la card
-            card.querySelector('.card-img-top').src = arbol.RUTA_FOTO_ARBOL;
-            card.querySelector('.card-img-top').alt = `Imagen de ${arbol.ESPECIE}`;
-            card.querySelector('.card-text').innerHTML = `
-                <strong>Especie:</strong> ${arbol.ESPECIE} <br>
-                <strong>Precio:</strong> $${arbol.PRECIO.toFixed(2)}
-            `;
-        }
-    });
-}
-
-
 // Función que se asocia a los eventos
 function bindEvents() {
     const signupForm = document.getElementById('signupForm');
@@ -211,12 +192,12 @@ function bindEvents() {
         }
 
         // muestra el offcanvas al clickear en un botón de comprar
-        // botonesComprar.forEach(boton => {
-        //     boton.addEventListener('click', function (e) {
-        //         e.stopPropagation(); // detiene el click
-        //         mostrarOffcanvas(offcanvasForm);
-        //     });
-        // });
+        botonesComprar.forEach(boton => {
+            boton.addEventListener('click', function (e) {
+                e.stopPropagation(); // detiene el click
+                mostrarOffcanvas(offcanvasForm);
+            });
+        });
 
 
         // Cierra el offcanvas en el botón de cerrar
