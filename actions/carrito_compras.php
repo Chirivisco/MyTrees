@@ -41,11 +41,6 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo']
 
                 break;
                 // accion para borrar un item del carrito de compras.
-            case 'borrar':
-                // validar los datos del POST
-
-                break;
-                // accion erronea
             default:
                 header("Location: ../pantallas/menu_amigo.php?error=accion_invalida");
                 exit();

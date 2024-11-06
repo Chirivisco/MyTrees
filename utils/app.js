@@ -211,12 +211,12 @@ function bindEvents() {
         }
 
         // muestra el offcanvas al clickear en un botón de comprar
-        botonesComprar.forEach(boton => {
-            boton.addEventListener('click', function (e) {
-                e.stopPropagation(); // detiene el click
-                mostrarOffcanvas(offcanvasForm);
-            });
-        });
+        // botonesComprar.forEach(boton => {
+        //     boton.addEventListener('click', function (e) {
+        //         e.stopPropagation(); // detiene el click
+        //         mostrarOffcanvas(offcanvasForm);
+        //     });
+        // });
 
 
         // Cierra el offcanvas en el botón de cerrar

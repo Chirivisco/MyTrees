@@ -6,7 +6,6 @@ body {
     border: 1px solid #d4edda;
     transition: transform 0.2s;
     width: 293px !important;
-    height: 10px !important;
 }
 
 .card:hover {

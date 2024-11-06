@@ -9,7 +9,22 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email']) || $_SESSION['tipo']
 }
 
 $arboles = obtenerArboles($_SESSION['tipo']);
-$arboles_carrito = isset($_SESSION['arboles_carrito']) ? $_SESSION['arboles_carrito'] : [];
+$arboles_carrito = cargarArbolesCarrito($_SESSION['id_usuario']);
+
+// foreach ($arboles_carrito as $arbol) {
+
+//     foreach ($arbol as $id_arbol) {
+//         $detalle_arbol = cargarInfoArbol((int) $id_arbol);
+//          $columnas = array_keys($detalle_arbol);
+//          echo "<br>";
+//          echo "id del arbol del array 'arbol': ".$id_arbol."<br>";
+//          echo "ruta de la imagen: ".$detalle_arbol['RUTA_FOTO_ARBOL']."<br>";
+//          echo "id del arbol: ".$detalle_arbol['ID_ARBOL'];
+//          echo "<br>";
+//     }
+// }
+
+// die();
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +35,7 @@ $arboles_carrito = isset($_SESSION['arboles_carrito']) ? $_SESSION['arboles_carr
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda - My Trees</title>
     <link rel="stylesheet" href="/stylesheets/stylesheet_menu_amigo.css">
-    <link rel="stylesheet" href="/stylesheets/stylesheet_offcanvas.css"> <!-- Agregado: stylesheet para el offcanvas -->
+    <link rel="stylesheet" href="/stylesheets/stylesheet_offcanvas.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="/imagenes/app_icon.png" type="image/x-icon">
 </head>
@@ -44,7 +59,22 @@ $arboles_carrito = isset($_SESSION['arboles_carrito']) ? $_SESSION['arboles_carr
             <button type="button" class="btn-close" id="closeOffcanvas" aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body">
-            <!-- Aquí se cargará dinámicamente la lista de productos -->
+
+            <!-- Generar las cards para cada árbol en el carrito -->
+            <?php foreach ($arboles_carrito as $arbol): ?>
+                <?php foreach ($arbol as $id_arbol): ?>
+                    <?php $detalle_arbol = cargarInfoArbol((int) $id_arbol); ?>
+
+                    <div class="card card-offcanvas mb-3" style="width: 18rem;" data-id-arbol="<?php echo htmlspecialchars($arbol['ARBOL']); ?>">
+                        <img class="card-img-top" src="<?php echo $detalle_arbol['RUTA_FOTO_ARBOL'] ?>" alt="Imagen de árbol">
+                        <div class="card-body">
+                            <p class="card-text"><?php echo "<b>Especie:</b> " . $detalle_arbol['ESPECIE'] ?></p>
+                            <p class="card-text"><?php echo "<b>Precio:</b> " . $detalle_arbol['PRECIO'] ?></p>
+                        </div>
+                    </div>
+
+                <?php endforeach; ?>
+            <?php endforeach; ?>
 
         </div>
     </div>
@@ -53,35 +83,31 @@ $arboles_carrito = isset($_SESSION['arboles_carrito']) ? $_SESSION['arboles_carr
         <div class="container mt-5">
             <h1 class="text-center text-success mb-4">Tienda de Árboles</h1>
             <div class="row">
-
                 <!-- Carga en las cards los árboles disponibles -->
                 <?php foreach ($arboles as $arbol): ?>
                     <div class="col-md-4 mb-4">
-
                         <!-- Form para agregar al carrito de compras el árbol -->
                         <form action="../actions/carrito_compras.php" method="POST">
+                            <input type="hidden" name="accion" value="agregar">
                             <div class="card shadow-sm h-100">
                                 <!-- Imagen del árbol -->
                                 <img src="<?php echo htmlspecialchars($arbol['RUTA_FOTO_ARBOL']); ?>" class="card-img-top" alt="Imagen de árbol">
-                                
+
                                 <div class="card-body">
                                     <h5 class="card-title"><?php echo htmlspecialchars($arbol['ESPECIE']); ?></h5>
-                                    
+
                                     <!-- Descripción del árbol -->
                                     <p class="card-text">
                                         <strong>Ubicación:</strong> <?php echo htmlspecialchars($arbol['UBICACION']); ?><br>
                                         <strong>Precio:</strong> $<?php echo number_format($arbol['PRECIO'], 2); ?>
                                     </p>
                                     <input type="hidden" name="id_arbol" value="<?php echo htmlspecialchars($arbol['ID_ARBOL']); ?>">
-                                    <button type="submit" class="btn btn-success" data-ajax="true">Comprar</button>
+                                    <button type="submit" class="btn btn-success">Comprar</button>
                                 </div>
                             </div>
                         </form>
-
                     </div>
                 <?php endforeach; ?>
-
-
             </div>
         </div>
     </main>

@@ -54,11 +54,11 @@ function login($user)
                         return ['success' => true, 'tipo' => $tipo_usuario, 'id_usuario' => $id_usuario];
                     } else {
                         // Retorna false y null si la autenticación falló
-                        return ['success' => false, 'tipo' => null, 'id_usuario' => 0];
+                        return ['success' => false, 'tipo' => null, 'id_usuario' => 0, 'error' => 1];
                     }
                 } else {
                     // Retorna false y null si no hay registros o resultados del query
-                    return ['success' => false, 'tipo' => null, 'id_usuario' => 0];
+                    return ['success' => false, 'tipo' => null, 'id_usuario' => 0, 'error' => 1];
                 }
             } else {
                 throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
@@ -623,18 +623,7 @@ function cargarInfoArbol(int $idArbol): array
     $connection = getConnection();
     $arbol = [];
 
-    $query = "
-        SELECT 
-            A.ID_ARBOL,
-            CONCAT(E.NOMBRE_COMERCIAL, ' - ', E.NOMBRE_CIENTIFICO) AS ESPECIE,
-            A.UBICACION,
-            A.PRECIO,
-            A.FOTO_ARBOL AS RUTA_FOTO_ARBOL,
-            ES.ESTADO
-        FROM ARBOLES a
-        INNER JOIN ESPECIES_ARBOLES E ON A.ESPECIE = E.ID_ESPECIE
-        INNER JOIN ESTADOS ES ON A.ID_ARBOL = ES.ID_ESTADO
-        WHERE A.ID_ARBOL = ?";
+    $query = "SELECT * FROM VISTA_ARBOL_INFO WHERE ID_ARBOL = ?";
 
     try {
         $stmt = $connection->prepare($query);
@@ -748,9 +737,6 @@ function crearCarritoCompras($idUsuario): int
         if (isset($stmt)) {
             $stmt->close();
         }
-        if (isset($stmtVerificar)) {
-            $stmtVerificar->close();
-        }
         mysqli_close($connection);
     }
 }
@@ -790,7 +776,7 @@ function cargarArbolesCarrito($idUsuario): array
     $connection = getConnection();
     $arboles = [];
 
-    $query = "SELECT * FROM VISTA_ARBOLES_CARRITO WHERE ID_USUARIO = ?;";
+    $query = "SELECT ARBOL FROM VISTA_ARBOLES_CARRITO WHERE USUARIO = ?;";
 
     try {
         $stmt = $connection->prepare($query);
@@ -819,3 +805,31 @@ function cargarArbolesCarrito($idUsuario): array
     }
 }
 
+// Función para confirmar la compra de un árbol
+function agregarVenta($idArbol, $idDueno): bool
+{
+    $connection = getConnection();
+
+    try {
+        $queryVenta = "INSERT INTO ARBOLES_VENDIDOS (ID_ARBOL, ID_DUENO) VALUES (?, ?)";
+        $stmt = $connection->prepare($queryVenta);
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta de venta: " . $connection->error);
+        } else {
+            $stmt->bind_param("ii", $idArbol, $idDueno);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Error al insertar la venta: " . $stmt->error);
+            } else {
+                return true;
+            }
+        }
+    } catch (Exception $e) {
+        return false;
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}

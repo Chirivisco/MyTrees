@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
         // Intentar autenticar al usuario usando la función login proveniente de 'functions.php'.
         $resultado = login($user);
 
+        
         // Validar si el login fue exitoso
         if ($resultado['success']) {
 
