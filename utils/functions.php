@@ -892,3 +892,45 @@ function eliminarArbolDelCarrito($idArbol, $idUsuario): bool
         mysqli_close($connection);
     }
 }
+
+// Función para obtener los IDs árboles adquiridos por un usuario
+function obtenerMisArboles($id_usuario)
+{
+    $connection = getConnection();
+    $arboles = [];
+    $query = "SELECT ID_ARBOL FROM vista_arboles_vendidos WHERE ID_DUENO = ?";
+
+    try {
+        // Prepara la consulta SQL
+        $stmt = $connection->prepare($query);
+
+        if (!$stmt) {
+            throw new Exception("Error en la consulta SQL: " . $connection->error);
+        } else {
+            $stmt->bind_param("i", $id_usuario);
+
+            // Ejecuta la consulta
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                // mete en un array los árboles
+                while ($row = $result->fetch_assoc()) {
+                    $arboles[] = $row;
+                }
+                // Retorna el array con los ids de los árboles
+                return $arboles;
+            } else {
+                throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        // Redirige en caso de error y detiene la ejecución
+        return $arboles;
+        exit();
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        mysqli_close($connection);
+    }
+}
