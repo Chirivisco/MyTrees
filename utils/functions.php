@@ -833,3 +833,62 @@ function agregarVenta($idArbol, $idDueno): bool
         mysqli_close($connection);
     }
 }
+
+// Función para eliminar un árbol del carrito de compras después de una compra exitosa
+function eliminarArbolDelCarrito($idArbol, $idUsuario): bool
+{
+    $connection = getConnection();
+    
+    try {
+
+        // obtiene el id del carrito
+        $queryCarrito = "SELECT ID_CARRITO FROM CARRITO_COMPRAS WHERE USUARIO = ?";
+        $stmt = $connection->prepare($queryCarrito);
+
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta de carrito: " . $connection->error);
+        } else {
+            $stmt->bind_param("i", $idUsuario);
+
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $carrito = $result->fetch_assoc();
+                    $idCarrito = $carrito['ID_CARRITO'];
+
+                    // elimina el arbol del carrito de compras
+                    $queryEliminar = "DELETE FROM DETALLE_CARRITO_COMPRAS WHERE CARRITO = ? AND ARBOL = ?";
+                    $stmtEliminar = $connection->prepare($queryEliminar);
+
+                    if (!$stmtEliminar) {
+                        throw new Exception("Error en la preparación de la consulta de eliminación: " . $connection->error);
+                    } else {
+                        $stmtEliminar->bind_param("ii", $idCarrito, $idArbol);
+
+                        if (!$stmtEliminar->execute()) {
+                            throw new Exception("Error al eliminar el árbol del carrito: " . $stmtEliminar->error);
+                        } else {
+                            // retorna 'true' si logró eliminar el arbol del carrito de compras
+                            return true;
+                        }
+                    }
+                } else {
+                    throw new Exception("No se encontró el carrito para el usuario.");
+                }
+            } else {
+                throw new Exception("Error al ejecutar la consulta de carrito: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        return false;
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        if (isset($stmtEliminar)) {
+            $stmtEliminar->close();
+        }
+        mysqli_close($connection);
+    }
+}

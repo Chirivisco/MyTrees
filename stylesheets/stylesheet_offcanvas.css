@@ -26,24 +26,23 @@
 .offcanvas-body {
     padding: 1rem;
     overflow-y: auto;
-    height: 918px;
+    height: calc(918px - 60px);
 }
 
 .card-offcanvas {
-    display: block !important;              /* Asegura que cada card esté en una nueva línea */
-    width: 100% !important;                 /* Hace que cada card ocupe todo el ancho del offcanvas */
-    margin-bottom: 1rem !important;         /* Añade espacio entre cada card */
-    background-color: #f7f7f7 !important;   /* Color de fondo blanco-grisáceo */
-    border: 1px solid #ddd !important;      /* Añade un borde suave */
-    border-radius: 8px !important;          /* Bordes redondeados para un estilo más elegante */
-    padding: 10px !important;               /* Añade padding interno para separar el contenido del borde */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; /* Sombra leve para un efecto flotante */
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 1rem !important; 
+    background-color: #f7f7f7 !important; 
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 .card-offcanvas .card-img-top {
     width: 100% !important;
     height: auto !important;
-    border-radius: 6px !important; /* Redondea un poco la imagen para coincidir con el card */
+    border-radius: 6px !important;
 }
-
 
